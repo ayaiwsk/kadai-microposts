@@ -8,27 +8,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class User extends Authenticatable
 {
     use Notifiable;
-
     
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
-    protected $fillable = [
-        'name', 'email', 'password',
-    ];
-
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
-    protected $hidden = [
-        'password', 'remember_token',
-    ];
-    
-     public function microposts()
+    public function microposts()
     {
         return $this->hasMany(Micropost::class);
     }
@@ -88,4 +69,66 @@ class User extends Authenticatable
         $follow_user_ids[] = $this->id;
         return Micropost::whereIn('user_id', $follow_user_ids);
     }
+    
+    public function favorites()
+    {
+        return $this->belongsToMany(Micropost::class, 'favorites', 'user_id', 'micropost_id')->withTimestamps();
+    }
+    
+    public function is_favoriting($micropostId)
+    {
+        return $this->favorites()->where('micropost_id', $micropostId)->exists();
+    }
+    
+    public function favorite($micropostId)
+    {
+        // 既にfavoriteしているかの確認
+        $exist = $this->is_favoriting($micropostId);
+        // 相手が自分自身ではないかの確認
+     
+    
+        if ($exist) {
+            // 既にお気に入りに入れていれば何もしない
+            return false;
+        } else {
+            // 未登録であればお気に入り追加する
+            $this->favorites()->attach($micropostId);
+            return true;
+        }
+    }
+    
+    public function unfavorite($micropostId)
+    {
+        // 既にお気に入りにしているかの確認
+        $exist = $this->is_favoriting($micropostId);
+        // 相手が自分自身ではないかの確認
+       
+    
+        if ($exist) {
+            // 既にお気に入りにしていればフォローを外す
+            $this->favorites()->detach($micropostId);
+            return true;
+        } else {
+            // 未登録であれば何もしない
+            return false;
+        }
+    }
+    
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'name', 'email', 'password',
+    ];
+
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'password', 'remember_token',
+    ];
 }

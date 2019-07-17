@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="row">
+   <div class="row">
         <aside class="col-sm-4">
             <div class="card">
                 <div class="card-header">
@@ -20,7 +20,7 @@
                 <li class="nav-item"><a href="{{ route('users.followers', ['id' => $user->id]) }}" class="nav-link {{ Request::is('users/*/followers') ? 'active' : '' }}">Followers <span class="badge badge-secondary">{{ $count_followers }}</span></a></li>
                 <li class="nav-item"><a href="{{ route('users.favorites', ['id' => $user->id]) }}" class="nav-link {{ Request::is('users/*/favorites') ? 'active' : '' }}">favorites <span class="badge badge-secondary">{{ $count_favorites }}</span></a></li>
             </ul>
-            @include('users.users', ['users' => $users])
+             @include('microposts.microposts', ['microposts' => $microposts])
         </div>
     </div>
 @endsection
